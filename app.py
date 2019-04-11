@@ -1,21 +1,22 @@
-from flask import Flask, render_template, request, redirect, jsonify, json, url_for
+from flask import Flask, render_template, request, redirect, jsonify, json, url_for, session
 from db import insert_method, select_method
 
 app = Flask(__name__)
-
-def order_dict(dict_data):
-    import collections
-    od = collections.OrderedDict(sorted(dict_data.items()))
-    return od
+app.secret_key = ".."
 
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    if 'message' in session:
+        message = session['message']
+        return render_template('index.html', message=message)
+    else:
+        return render_template('index.html')
 
 @app.route('/result.html')
 def result():
-    return render_template('result.html', message = request.args.get('message'))
+    message = request.args['message']
+    return render_template('result.html', message=message)
 
 @app.route('/handle_data', methods = ['POST', 'GET'])
 def handle_data():
@@ -32,11 +33,14 @@ def handle_data():
             new_dict.update({key: value})
         
         insert_method(**new_dict)
-        select_method()
+        # select_method()
 
-        print "User input: ", result.items()
-        # return redirect( url_for( 'result', message=result.items() ) )
-        return render_template('result.html', view = result.items())
+        ## message = json.dumps(new_dict)
+        message = new_dict
+        session['message'] = message
+        print session['message']
+        return redirect(url_for('index', message=message))
+        # return render_template('result.html', view = result.items())
 
 if __name__ == "__main__":
     app.run(debug=True)
