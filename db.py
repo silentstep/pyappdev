@@ -9,9 +9,6 @@ conn.close()
 def insert_method(server, alarm, action):
     conn = sqlite3.connect('main.db')
     c = conn.cursor()
-    # assetname = server
-    # checkname = alarm
-    # desctext = action
     if c.execute("INSERT INTO alerts (asset, beep, desc) VALUES(?, ?, ?)", (server, alarm, action)):
         conn.commit()
         conn.close() 
