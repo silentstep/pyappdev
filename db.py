@@ -12,10 +12,10 @@ def insert_method(server, alarm, action):
     if c.execute("INSERT INTO alerts (asset, beep, desc) VALUES(?, ?, ?)", (server, alarm, action)):
         conn.commit()
         conn.close() 
-        return True
+        print "Success"
     else:
         conn.close() 
-        return False
+        print "Failed"
 
 def select_method():
     conn = sqlite3.connect('main.db')

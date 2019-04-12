@@ -18,8 +18,9 @@ $(document).ready(function() {
                 console.log(data);
                 var dataStr = JSON.stringify(data, null, 2);
                 console.log(dataStr);
-                $('#successAlert').text(dataStr).show();
-				$('#errorAlert').hide()
+                $('#successAlert').append(dataStr + '</br>');
+                $('#successAlert').show();
+				$('#errorAlert').hide();
             }
             
         });
