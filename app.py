@@ -1,8 +1,9 @@
 from flask import Flask, render_template, request, redirect, jsonify, json, url_for, session
-from db import insert_method, select_method
+import db
 
 app = Flask(__name__)
 app.secret_key = ".."
+db_conn = db.Worker()
 
 @app.route('/')
 def index():
@@ -11,16 +12,20 @@ def index():
 @app.route('/process', methods=['POST'])
 def process():
 
-    result = request.form
-    new_dict = dict()
-    for key, value in result.items():
-        new_dict.update({key: value})
+    user_input = request.form
+    user_input_dict = dict()
 
-    if new_dict['server']:
-        session['message'] = new_dict
-        print session
+    for key, value in user_input.items():
+        user_input_dict.update({key: value})
+
+    if user_input_dict['server']:
+        # session['message'] = user_input_dict
+        # print session
         # session.clear()
-        return jsonify(new_dict)
+        db_conn.qry_insert(**user_input_dict)
+        qry_result_json = jsonify(db_conn.qry_select()[0])
+        db_conn.conn.close()
+        return qry_result_json
 
     return jsonify({'error' : 'Missing data'})
 

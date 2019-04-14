@@ -1,30 +1,30 @@
 import sqlite3
 
-conn = sqlite3.connect('main.db')
-c = conn.cursor()
-c.execute(""" CREATE TABLE IF NOT EXISTS alerts(ID INTEGER PRIMARY KEY, asset TEXT, beep TEXT, desc TEXT, Timestamp DATETIME DEFAULT CURRENT_TIMESTAMP); """)
-conn.commit()
-conn.close() 
+class Worker():
 
-def insert_method(server, alarm, action):
-    conn = sqlite3.connect('main.db')
-    c = conn.cursor()
-    if c.execute("INSERT INTO alerts (asset, beep, desc) VALUES(?, ?, ?)", (server, alarm, action)):
-        conn.commit()
-        conn.close() 
-        print "Success"
-    else:
-        conn.close() 
-        print "Failed"
+    def __init__(self):
+        self.conn = sqlite3.connect('main.db')
+        self.c = self.conn.cursor()
 
-def select_method():
-    conn = sqlite3.connect('main.db')
-    c = conn.cursor()
-    if c.execute("SELECT * FROM alerts"):
-        conn.commit()
-        print "select output:", c.fetchall()
-        conn.close()
-        return True
-    else:
-        conn.close()
+    def qry_insert(self, server, alarm, action):
+
+        if self.c.execute("INSERT INTO alerts (server, alarm, action) VALUES(?, ?, ?)", (server, alarm, action)):
+            self.conn.commit()
+            print "Successful insert query"
+            return True
+
+        self.conn.close() 
+        print "Failed insert query"
+        return False
+
+    def qry_select(self):
+        
+        if self.conn:
+            result = self.c.execute("SELECT * FROM alerts ORDER BY ID DESC LIMIT 1")
+            items = [dict(zip([key[0] for key in self.c.description], row)) for row in result]
+            print "Successful select query"
+            return items
+
+        self.conn.close()
+        print "Failed select query"
         return False
